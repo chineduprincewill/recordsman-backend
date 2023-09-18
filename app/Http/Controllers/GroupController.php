@@ -21,7 +21,7 @@ class GroupController extends Controller
                 return response()->json(['user_not_found'], 404);
             }
 
-            $groups = Group::where('status', 1)->get();
+            $groups = Group::where('status', 1)->orderBy('created_at', 'DESC')->get();
 
         } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
 
@@ -62,7 +62,7 @@ class GroupController extends Controller
             $usertype = $user->role;
             $email = $user->email;
 
-            if($usertype !== 'admin' || $user->groupid !== 0){
+            if($usertype != 'admin' || $user->groupid != 0){
                 return response()->json([
                     "error" => "You do not have the permission to access this resource!"
                 ], 401);
@@ -119,7 +119,7 @@ class GroupController extends Controller
             $usertype = $user->role;
             $email = $user->email;
 
-            if($usertype !== 'admin' || $user->groupid !== 0){
+            if($usertype != 'admin' || $user->groupid != 0){
                 return response()->json([
                     "error" => "You do not have the permission to access this resource!"
                 ], 401);
@@ -165,7 +165,7 @@ class GroupController extends Controller
                 return response()->json(['user_not_found'], 404);
             }
 
-            if($user->role !== 'admin' || $user->groupid !== 0){
+            if($user->role != 'admin' || $user->groupid != 0){
                 return response()->json([
                     "error" => "You do not have the permission to access this resource!"
                 ], 401);

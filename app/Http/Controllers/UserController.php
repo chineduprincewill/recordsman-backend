@@ -65,7 +65,7 @@ class UserController extends Controller
             $usertype = $user->role;
             $email = $user->email;
 
-            if($usertype !== 'admin' || $user->groupid != 0){
+            if($usertype != 'admin' || $user->groupid != 0){
                 return response()->json([
                     "error" => "You do not have the permission to access this resource!"
                 ], 401);
@@ -122,7 +122,7 @@ class UserController extends Controller
                 ], 401);
             }
 
-            if($user->groupid !== 0){
+            if($user->groupid != 0){
                 $users = User::where('groupid', $user->groupid)->orderBy('id', 'desc')->get();
             }
             else{
@@ -274,7 +274,7 @@ class UserController extends Controller
             $usertype = $user->role;
             $user_to_edit = User::find($request->id);
             
-            if($user->role !== 'admin' || $user->groupid != 0){
+            if($user->role != 'admin' || $user->groupid != 0){
                 return response()->json([
                     "error" => "You do not have the permission to access this resource!"
                 ], 401);
@@ -282,12 +282,14 @@ class UserController extends Controller
 
             $group = Group::find($request->groupid);
 
-            $user_to_edit->role = $request->role;
             $user_to_edit->username = $request->username;
             $user_to_edit->mobile = $request->mobile;
             $user_to_edit->email = $request->email;
-            $user_to_edit->groupid = $request->groupid;
-            $user_to_edit->groupname = $group->title;
+            if($user_to_edit->groupid != 0){
+                $user_to_edit->role = $request->role;
+                $user_to_edit->groupid = $request->groupid;
+                $user_to_edit->groupname = $group->title;
+            }
 
             $user_to_edit->save();
 
@@ -322,13 +324,20 @@ class UserController extends Controller
             $usertype = $user->role;
 
             // restrict non admin roles from deleting a user
-            if($usertype !== 'admin' || $user->groupid != 0){
+            if($usertype != 'admin' || $user->groupid != 0){
                 return response()->json([
                     "error" => "You do not have the permission to access this resource!"
                 ], 401);
             }
 
             $userinfo = User::find($request->id);
+            
+            // restrict the deletion of an admin
+            if($userinfo->role == 'admin' && $userinfo->groupid == 0){
+                return response()->json([
+                    "error" => "You cannot delete a super admin role!"
+                ], 401);
+            }
 
             $userinfo->delete();
 
